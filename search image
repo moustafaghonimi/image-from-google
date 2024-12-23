@@ -39,8 +39,8 @@ class _ImageSearchScreenState extends State<ImageSearchScreen> {
   ];
 
   // Replace with your API key and Search Engine ID
-  final String apiKey = 'AIzaSyAWK3dmFyIHar7T38hyCJvKVohmB22tGa0';
-  final String searchEngineId = 'd5532dbf76dcf44b4';
+  final String apiKey = 'your api key'; // go to Google Cloud Console and create new project and get Api Key
+  final String searchEngineId = 'Your Search Engine id'; // go to  Custom Search Engine and het Id
 
   Future<void> searchImage(String query) async {
     setState(() {
