@@ -1,0 +1,167 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: ImageSearchScreen(),
+    );
+  }
+}
+
+class ImageSearchScreen extends StatefulWidget {
+  @override
+  _ImageSearchScreenState createState() => _ImageSearchScreenState();
+}
+
+class _ImageSearchScreenState extends State<ImageSearchScreen> {
+  final TextEditingController _controller = TextEditingController();
+  String? imageUrl1;
+  String? imageUrl2;
+  String? imageUrl3;
+  String? imageUrl4;
+  String? imageUrl5;
+  bool isLoading = false;
+  List imageUrls = [
+    {
+      'Image1': 'imageUrl1',
+      'Image2': 'imageUrl2',
+      'Image3': 'imageUrl3',
+      'Image4': 'imageUrl4',
+      'Image5': 'imageUrl5',
+    }
+  ];
+
+  // Replace with your API key and Search Engine ID
+  final String apiKey = 'AIzaSyAWK3dmFyIHar7T38hyCJvKVohmB22tGa0';
+  final String searchEngineId = 'd5532dbf76dcf44b4';
+
+  Future<void> searchImage(String query) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final url =
+        'https://www.googleapis.com/customsearch/v1?q=$query&cx=$searchEngineId&key=$apiKey&searchType=image';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final image1 = data['items'][0]['link'];
+        final image2 = data['items'][2]['link'];
+        final image3 = data['items'][3]['link'];
+        final image4 = data['items'][4]['link'];
+        final image5 = data['items'][6]['link'];
+        setState(() {
+          imageUrl1 = image1;
+          imageUrl2 = image2;
+          imageUrl3 = image3;
+          imageUrl4 = image4;
+          imageUrl5 = image5;
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Image Search'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _controller,
+              decoration: const InputDecoration(
+                labelText: 'Enter a search term',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                if (_controller.text.isNotEmpty) {
+                  searchImage(_controller.text);
+                }
+              },
+              child: const Text('Search'),
+            ),
+            const SizedBox(height: 16),
+            if (isLoading)
+              const CircularProgressIndicator()
+            else if (imageUrl1 != null ||
+                imageUrl2 != null ||
+                imageUrl3 != null ||
+                imageUrl4 != null ||
+                imageUrl5 != null)
+              Expanded(
+                child: SingleChildScrollView(
+                    physics: const ScrollPhysics(),
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              height: 300,
+                              child: Image.network(imageUrl1!)),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              height: 300,
+                              child: Image.network(imageUrl2!)),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              height: 250,
+                              child: Image.network(imageUrl3!)),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              height: 250,
+                              child: Image.network(imageUrl4!)),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              height: 250,
+                              child: Image.network(imageUrl5!)),
+                        ),
+                      ],
+                    )),
+              )
+            else
+              const Text('No image found'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
